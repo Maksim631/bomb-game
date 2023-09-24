@@ -53,6 +53,18 @@ export class GameState {
     return this.state.currentTeam;
   }
 
+  getCurrentUser() {
+    // TODO: implement
+  }
+
+  getTeamOneScore() {
+    return this.state.teamOne.score;
+  }
+
+  getTeamTwoScore() {
+    return this.state.teamTwo.score;
+  }
+
   resetGame() {
     this.state = DEFAULT_STATE;
   }

@@ -1,6 +1,7 @@
 export const PORT = 3001;
 export const RANDOM_WORDS_COUNT = 7;
 export const GAME_WORDS_COUNT = 5;
+export const ROUNDS_AMOUNT = 3;
 
 export const words = [
   'apple',
@@ -62,4 +63,5 @@ export const TYPES = {
   NEW_ROUND: 'new_round',
   NEW_USER: 'new_user',
   GAME_SCORE: 'game_score',
+  LEAVE_ROOM: 'leave_room',
 };

@@ -1,19 +1,17 @@
-import { GAME_WORDS_COUNT, ROOM_ID, TYPES, WORDS_COUNT } from './constants';
+import { GAME_WORDS_COUNT, ROUNDS_AMOUNT, TYPES } from './constants';
 import { GameState } from './GameState';
+import { gameClients } from './GameClients';
 
 const gameState = new GameState();
-// TODO: should be class, roomId: clients[], where client is pair name and ws
-const clients = [];
 
-export const processMessage = (ws, message) => {
+export const processMessage = (connection, message) => {
   const { type, data } = JSON.parse(message);
   switch (type) {
     case TYPES.JOIN_ROOM: {
       const { name } = data;
-      clients.push(ws);
+      gameClients.addClient(name, connection);
       gameState.addPlayer(name);
-      ws.subscribe(ROOM_ID);
-      ws.publish(ROOM_ID, {
+      gameClients.sendToAll({
         type: TYPES.PLAYERS,
         data: {
           usersState: gameState.getAllUsers(),
@@ -24,7 +22,7 @@ export const processMessage = (ws, message) => {
     case TYPES.CHOOSE_TEAM: {
       const { name, team } = data;
       gameState.addPlayer(name, team);
-      ws.publish(ROOM_ID, {
+      gameClients.sendToAll({
         type: TYPES.PLAYERS,
         data: {
           usersState: gameState.getAllUsers(),
@@ -34,7 +32,7 @@ export const processMessage = (ws, message) => {
     }
     case TYPES.START_NEW_GAME: {
       const exceptions = [];
-      clients.forEach((client) => {
+      gameClients.forEachClient((client) => {
         const words = gameState.getRandomWords(exceptions);
         exceptions.push(...words);
         client.send(
@@ -55,59 +53,54 @@ export const processMessage = (ws, message) => {
         gameState.getGameWords().length ===
         gameState.getPlayersAmount() / GAME_WORDS_COUNT
       ) {
-        ws.publish(ROOM_ID, {
+        gameClients.sendToAll({
           type: TYPES.GAME_CAN_BE_STARTED,
           data: {
             words: gameState.getGameWords(),
             currentTeam: gameState.getCurrentTeam(),
-            currentPlayer: gameState.
+            currentPlayer: gameState.getCurrentUser(),
           },
         });
       }
       break;
     }
-    case TYPES.CHOOSE_TEAM: {
-      gameState.addPlayer(data.team, data.name);
-      ws.publish(ROOM_ID, {
-        type: TYPES.PLAYERS,
-        data: {
-          playersAmount: gameState.getPlayersAmount(),
-          teamOne: gameState.teamOne,
-          teamTwo: gameState.teamTwo,
-        },
-      });
-      break;
-    }
     case TYPES.START_TURN: {
-      ws.publish(ROOM_ID, { type: TYPES.START_TURN });
+      gameClients.sendToAll({ type: TYPES.START_TURN });
       break;
     }
-    case TYPES.WORD_COMPLETED: {
+    case TYPES.WORD_SUCCESS: {
+      gameState.updateScore(1);
       gameState.nextWord();
-      ws.publish(ROOM_ID, { type: TYPES.WORD_COMPLETED });
+      gameClients.sendToAll({ type: TYPES.WORD_SUCCESS });
+      break;
+    }
+    case TYPES.WORD_FAILURE: {
+      gameState.nextWord();
+      gameClients.sendToAll({ type: TYPES.WORD_FAILURE });
       break;
     }
     case TYPES.END_ROUND: {
-      const { completed } = data;
       const isWordsRemain = gameState.getCurrentWords().length > 0;
-      gameState.updateScore(completed);
       gameState.changeTeam();
       if (isWordsRemain) {
-        ws.publish(ROOM_ID, {
+        gameClients.sendToAll({
           type: TYPES.SCORE_UPDATE,
           data: {
             currentTeam: gameState.state.currentTeam,
-            teamOneScore: gameState.state.teamOne.score,
-            teamTwoScore: gameState.state.teamTwo.score,
+            teamOneScore: gameState.getTeamOneScore(),
+            teamTwoScore: gameState.getTeamTwoScore(),
           },
         });
       } else {
-        gameState.nextRound();
+        const round = gameState.nextRound();
         gameState.shuffleWords();
-        if (gameState.getRound() === 4) {
-          ws.publish(ROOM_ID, { type: TYPES.END_GAME, data: gameState.state });
+        if (round > ROUNDS_AMOUNT) {
+          gameClients.sendToAll({
+            type: TYPES.END_GAME,
+            data: gameState.state,
+          });
         } else {
-          ws.publish(ROOM_ID, {
+          gameClients.sendToAll({
             type: TYPES.NEW_ROUND,
             data: {
               words: gameState.getGameWords(),
@@ -117,13 +110,17 @@ export const processMessage = (ws, message) => {
       }
       break;
     }
+    case TYPES.LEAVE_ROOM: {
+      gameClients.removeClient(data.name);
+      break;
+    }
   }
 };
 
-export const processOpen = (ws) => {
-  ws.subscribe(ROOM_ID);
+export const processOpen = () => {
+  console.log('nothing to do here');
 };
 
-export const processClose = (ws) => {
-  ws.unsubscribe(ROOM_ID);
+export const processClose = () => {
+  console.log('delete client from gameClients');
 };

@@ -4,6 +4,7 @@ import Fastify from 'fastify';
 import FastifyVite from '@fastify/vite';
 import FastifyWebsocket from '@fastify/websocket';
 import { renderToString } from 'react-dom/server';
+import { processClose, processMessage, processOpen } from './server/game';
 
 export async function main(dev) {
   const server = Fastify();
@@ -29,11 +30,18 @@ export async function main(dev) {
   server.get('/socket', { websocket: true }, (connection) => {
     connection.socket.onopen = () => {
       console.log('Socket opened');
+      processOpen(connection);
     };
-    connection.socket.on('message', (message) => {
+
+    connection.socket.onmessage = (message) => {
       console.log(`Received message: ${message}`);
-      connection.socket.send(`You said: ${message}`);
-    });
+      processMessage(connection, message);
+    };
+
+    connection.socket.onclose = () => {
+      console.log('Socket closed');
+      processClose(connection);
+    };
   });
 
   await server.vite.ready();
