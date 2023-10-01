@@ -1,11 +1,12 @@
-import { GAME_WORDS_COUNT, ROUNDS_AMOUNT, TYPES } from './constants';
-import { GameState } from './GameState';
-import { gameClients } from './GameClients';
+import { GAME_WORDS_COUNT, ROUNDS_AMOUNT, TYPES } from './constants.js';
+import { GameState } from './GameState.js';
+import { gameClients } from './GameClients.js';
 
 const gameState = new GameState();
 
 export const processMessage = (connection, message) => {
-  const { type, data } = JSON.parse(message);
+  const { type, data } = JSON.parse(message.data);
+  console.log('processMessage', 'type', type, 'data', data);
   switch (type) {
     case TYPES.JOIN_ROOM: {
       const { name } = data;

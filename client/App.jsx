@@ -2,22 +2,19 @@ import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/assets/vite.svg'
 import './App.css'
+import { useGetGameStateQuery, useJoinRoomMutation } from './store/api';
 
 function App() {
   const [count, setCount] = useState(0)
-
+  const test = useGetGameStateQuery();
+  const [joinRoom] = useJoinRoomMutation();
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:3000/socket');
-    ws.onopen = () => {
-      console.log('connected');
-      ws.send('hello');
-
-    }
-    ws.onmessage = (e) => {
-      console.log(e);
-    }
+    joinRoom('test');
   }, [])
 
+  useEffect(() => {
+    console.log(test)
+  }, [test]);
   return (
     <>
       <div>

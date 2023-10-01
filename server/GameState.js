@@ -1,4 +1,4 @@
-import { words, RANDOM_WORDS_COUNT, DEFAULT_STATE } from './constants';
+import { words, RANDOM_WORDS_COUNT, DEFAULT_STATE } from './constants.js';
 
 export class GameState {
   constructor() {

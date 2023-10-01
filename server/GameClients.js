@@ -16,7 +16,7 @@ class GameClients {
   }
 
   sendToAll(message) {
-    if (message.constructor !== Object) {
+    if (message.constructor === Object) {
       this.forEachClient((client) => client.send(JSON.stringify(message)));
     } else {
       this.forEachClient((client) => client.send(message));
