@@ -1,3 +1,3 @@
 import { createAction } from '@reduxjs/toolkit';
 
-export const addTodo = createAction('ADD_TODO');
+export const chooseName = createAction('CHOOSE_NAME');

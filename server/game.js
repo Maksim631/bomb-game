@@ -1,8 +1,15 @@
-import { GAME_WORDS_COUNT, ROUNDS_AMOUNT, TYPES } from './constants.js';
+import { GAME_WORDS_COUNT, ROUNDS_AMOUNT, TYPES } from '../shared/constants.js';
 import { GameState } from './GameState.js';
 import { gameClients } from './GameClients.js';
 
 const gameState = new GameState();
+
+const updateGameState = () => {
+  gameClients.sendToAll({
+    type: TYPES.GAME_STATE,
+    data: gameState.state,
+  });
+};
 
 export const processMessage = (connection, message) => {
   const { type, data } = JSON.parse(message.data);
@@ -10,25 +17,23 @@ export const processMessage = (connection, message) => {
   switch (type) {
     case TYPES.JOIN_ROOM: {
       const { name } = data;
+      if (gameState.isUserWithName(name)) {
+        connection.send(
+          JSON.stringify({
+            type: TYPES.USER_WITH_SUCH_NAME_ALREADY_EXISTS,
+          })
+        );
+        return;
+      }
       gameClients.addClient(name, connection);
       gameState.addPlayer(name);
-      gameClients.sendToAll({
-        type: TYPES.PLAYERS,
-        data: {
-          usersState: gameState.getAllUsers(),
-        },
-      });
+      updateGameState();
       break;
     }
     case TYPES.CHOOSE_TEAM: {
       const { name, team } = data;
       gameState.addPlayer(name, team);
-      gameClients.sendToAll({
-        type: TYPES.PLAYERS,
-        data: {
-          usersState: gameState.getAllUsers(),
-        },
-      });
+      updateGameState();
       break;
     }
     case TYPES.START_NEW_GAME: {
@@ -52,16 +57,12 @@ export const processMessage = (connection, message) => {
       gameState.chooseWords(words);
       if (
         gameState.getGameWords().length ===
-        gameState.getPlayersAmount() / GAME_WORDS_COUNT
+        gameState.getPlayersAmount() * GAME_WORDS_COUNT
       ) {
         gameClients.sendToAll({
           type: TYPES.GAME_CAN_BE_STARTED,
-          data: {
-            words: gameState.getGameWords(),
-            currentTeam: gameState.getCurrentTeam(),
-            currentPlayer: gameState.getCurrentUser(),
-          },
         });
+        updateGameState();
       }
       break;
     }

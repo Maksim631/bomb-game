@@ -64,4 +64,6 @@ export const TYPES = {
   NEW_USER: 'new_user',
   GAME_SCORE: 'game_score',
   LEAVE_ROOM: 'leave_room',
+  GAME_STATE: 'game_state',
+  USER_WITH_SUCH_NAME_ALREADY_EXISTS: 'user_with_such_name_already_exists',
 };

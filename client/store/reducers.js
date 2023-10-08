@@ -1,10 +1,9 @@
 import { combineReducers, createReducer } from '@reduxjs/toolkit';
-import { addTodo } from './actions';
+import { chooseName } from './actions';
 
-const state = createReducer([], (builder) => {
-  builder.addCase(addTodo, (state, action) => {
-    // "mutate" the array by calling push()
-    state.push(action.payload);
+const state = createReducer({}, (builder) => {
+  builder.addCase(chooseName, (state, action) => {
+    state.name = action.payload;
   });
 });
 

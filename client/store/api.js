@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { getSocket } from './socket';
+import { TYPES } from '../../shared/constants';
 
 export const api = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
@@ -7,7 +8,27 @@ export const api = createApi({
     joinRoom: builder.mutation({
       queryFn: async (name) => {
         const ws = await getSocket();
-        ws.send(JSON.stringify({ type: 'join_room', data: { name } }));
+        ws.send(JSON.stringify({ type: TYPES.JOIN_ROOM, data: { name } }));
+      },
+    }),
+    chooseTeam: builder.mutation({
+      queryFn: async ({ team, name }) => {
+        const ws = await getSocket();
+        ws.send(
+          JSON.stringify({ type: TYPES.CHOOSE_TEAM, data: { team, name } })
+        );
+      },
+    }),
+    startNewGame: builder.mutation({
+      queryFn: async () => {
+        const ws = await getSocket();
+        ws.send(JSON.stringify({ type: TYPES.START_NEW_GAME }));
+      },
+    }),
+    chooseWords: builder.mutation({
+      queryFn: async ({ words }) => {
+        const ws = await getSocket();
+        ws.send(JSON.stringify({ type: TYPES.CHOOSE_WORDS, data: { words } }));
       },
     }),
     getGameState: builder.query({
@@ -16,28 +37,53 @@ export const api = createApi({
         arg,
         { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
       ) {
-        // create a websocket connection when the cache subscription starts
         const ws = await getSocket();
         try {
-          // wait for the initial query to resolve before proceeding
           await cacheDataLoaded;
           const listener = (event) => {
-            const data = JSON.parse(event.data);
-            updateCachedData(() => data);
+            const { data, type } = JSON.parse(event.data);
+            console.log(data, type);
+            switch (type) {
+              case TYPES.GAME_STATE: {
+                updateCachedData((cachedData) => ({
+                  ...cachedData,
+                  ...data,
+                }));
+                break;
+              }
+              case TYPES.GET_RANDOM_WORDS: {
+                updateCachedData((cachedData) => ({
+                  ...cachedData,
+                  randomWords: data.words,
+                }));
+                break;
+              }
+              case TYPES.GAME_CAN_BE_STARTED: {
+                updateCachedData((cachedData) => ({
+                  ...cachedData,
+                  randomWords: [],
+                  gameCanBeStarted: true,
+                }));
+                break;
+              }
+            }
           };
 
           ws.addEventListener('message', listener);
-        } catch {
-          // no-op in case `cacheEntryRemoved` resolves before `cacheDataLoaded`,
-          // in which case `cacheDataLoaded` will throw
+        } catch (e) {
+          console.error(e);
         }
-        // cacheEntryRemoved will resolve when the cache subscription is no longer active
         await cacheEntryRemoved;
-        // perform cleanup steps once the `cacheEntryRemoved` promise resolves
-        // ws.close();
+        ws.close();
       },
     }),
   }),
 });
 
-export const { useGetGameStateQuery, useJoinRoomMutation } = api;
+export const {
+  useGetGameStateQuery,
+  useJoinRoomMutation,
+  useChooseTeamMutation,
+  useStartNewGameMutation,
+  useChooseWordsMutation,
+} = api;

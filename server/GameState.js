@@ -1,4 +1,8 @@
-import { words, RANDOM_WORDS_COUNT, DEFAULT_STATE } from './constants.js';
+import {
+  words,
+  RANDOM_WORDS_COUNT,
+  DEFAULT_STATE,
+} from '../shared/constants.js';
 
 export class GameState {
   constructor() {
@@ -19,7 +23,7 @@ export class GameState {
   }
 
   chooseWords(chosenWords) {
-    this.state.gameWords.push(chosenWords);
+    this.state.gameWords.push(...chosenWords);
   }
 
   getGameWords() {
@@ -70,12 +74,41 @@ export class GameState {
   }
 
   addPlayer(name, team) {
+    if (this.isUserWithName(name)) {
+      this.removeExistingPlayer(name);
+    }
     this.state.playersAmount++;
     if (team) {
       this.state[team].users.push(name);
     } else {
       this.state.noTeamUsers.push(name);
     }
+  }
+
+  isUserWithName(name) {
+    const isNoTeamUser = !!this.state.noTeamUsers.find(
+      (userName) => userName === name
+    );
+    const isTeamOneUser = !!this.state.teamOne.users.find(
+      (userName) => userName === name
+    );
+    const isTeamTwoUser = !!this.state.teamTwo.users.find(
+      (userName) => userName === name
+    );
+    return isNoTeamUser || isTeamOneUser || isTeamTwoUser;
+  }
+
+  removeExistingPlayer(name) {
+    this.state.playersAmount--;
+    this.state.noTeamUsers = this.state.noTeamUsers.filter(
+      (userName) => userName !== name
+    );
+    this.state.teamOne.users = this.state.teamOne.users.filter(
+      (userName) => userName !== name
+    );
+    this.state.teamTwo.users = this.state.teamTwo.users.filter(
+      (userName) => userName !== name
+    );
   }
 
   getPlayersAmount() {
