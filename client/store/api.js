@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { getSocket } from './socket';
-import { TYPES } from '../../shared/constants';
+import { DEFAULT_STATE, TYPES } from '../../shared/constants';
 
 export const api = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
@@ -32,7 +32,7 @@ export const api = createApi({
       },
     }),
     getGameState: builder.query({
-      queryFn: () => ({ data: {} }),
+      queryFn: () => ({ data: DEFAULT_STATE }),
       async onCacheEntryAdded(
         arg,
         { updateCachedData, cacheDataLoaded, cacheEntryRemoved }

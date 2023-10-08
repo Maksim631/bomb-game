@@ -1,14 +1,13 @@
 import { useEffect } from 'react';
+import { DEFAULT_STATE } from '../shared/constants';
 import './App.css';
+
+import { ChooseTeam, ChooseWords, JoinRoom, StartNewGame, Teams } from './components';
 import { useGetGameStateQuery } from './store/api';
-import { JoinRoom } from './components/JoinRoom';
-import { ChooseTeam } from './components/ChooseTeam';
-import { StartNewGame } from './components/StartNewGame';
-import { ChooseWords } from './components/ChooseWords';
 
 function App() {
-  const { data } = useGetGameStateQuery();
-
+  const { data = DEFAULT_STATE } = useGetGameStateQuery();
+  const { teamOne, teamTwo, noTeamUsers } = data;
 
   useEffect(() => {
     console.log(data)
@@ -20,6 +19,8 @@ function App() {
       <ChooseTeam />
       <StartNewGame />
       <ChooseWords />
+
+     <Teams teamOne={teamOne} teamTwo={teamTwo} noTeamUsers={noTeamUsers} />
       <span>{JSON.stringify(data, null, 2)}</span>
     </>
   )

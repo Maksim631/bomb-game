@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 import { useDispatch } from 'react-redux';
 import { useJoinRoomMutation } from "../store/api";
 
-export const JoinRoom = () => {
+export const JoinRoom = memo(function JoinRoom(){
   const [joinRoom] = useJoinRoomMutation();
 
   const [name, setName] = useState('');
@@ -19,4 +19,4 @@ export const JoinRoom = () => {
       <button onClick={handleClick}>Join Room</button>
     </div>
   )
-}
+});
