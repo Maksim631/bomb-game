@@ -25,6 +25,24 @@ export const api = createApi({
         ws.send(JSON.stringify({ type: TYPES.START_NEW_GAME }));
       },
     }),
+    wordCorrect: builder.mutation({
+      queryFn: async () => {
+        const ws = await getSocket();
+        ws.send(JSON.stringify({ type: TYPES.WORD_SUCCESS }));
+      },
+    }),
+    wordIncorrect: builder.mutation({
+      queryFn: async () => {
+        const ws = await getSocket();
+        ws.send(JSON.stringify({ type: TYPES.WORD_FAILURE }));
+      },
+    }),
+    turnEnd: builder.mutation({
+      queryFn: async () => {
+        const ws = await getSocket();
+        ws.send(JSON.stringify({ type: TYPES.END_ROUND }));
+      },
+    }),
     chooseWords: builder.mutation({
       queryFn: async ({ words }) => {
         const ws = await getSocket();
@@ -86,4 +104,7 @@ export const {
   useChooseTeamMutation,
   useStartNewGameMutation,
   useChooseWordsMutation,
+  useWordCorrectMutation,
+  useWordIncorrectMutation,
+  useTurnEndMutation,
 } = api;

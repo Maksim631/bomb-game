@@ -3,6 +3,7 @@ import {
   RANDOM_WORDS_COUNT,
   DEFAULT_STATE,
 } from '../shared/constants.js';
+import { shuffle } from './utils/shuffle.js';
 
 export class GameState {
   constructor() {
@@ -32,6 +33,10 @@ export class GameState {
 
   getCurrentWords() {
     return this.state.currentWords;
+  }
+
+  resetCurrentWords() {
+    this.state.currentWords = shuffle([...this.state.gameWords]);
   }
 
   nextRound() {

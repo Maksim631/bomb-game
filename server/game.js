@@ -62,6 +62,7 @@ export const processMessage = (connection, message) => {
         gameClients.sendToAll({
           type: TYPES.GAME_CAN_BE_STARTED,
         });
+        gameState.resetCurrentWords();
         updateGameState();
       }
       break;
@@ -73,12 +74,15 @@ export const processMessage = (connection, message) => {
     case TYPES.WORD_SUCCESS: {
       gameState.updateScore(1);
       gameState.nextWord();
+      console.log(gameState.getCurrentWords());
       gameClients.sendToAll({ type: TYPES.WORD_SUCCESS });
+      updateGameState();
       break;
     }
     case TYPES.WORD_FAILURE: {
       gameState.nextWord();
       gameClients.sendToAll({ type: TYPES.WORD_FAILURE });
+      updateGameState();
       break;
     }
     case TYPES.END_ROUND: {

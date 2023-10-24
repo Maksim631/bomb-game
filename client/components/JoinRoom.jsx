@@ -3,9 +3,9 @@ import { useDispatch } from 'react-redux';
 import { useJoinRoomMutation } from "../store/api";
 
 export const JoinRoom = memo(function JoinRoom(){
-  const [joinRoom] = useJoinRoomMutation();
+  const [ joinRoom ] = useJoinRoomMutation();
 
-  const [name, setName] = useState('');
+  const [ name, setName ] = useState('');
   const dispatch = useDispatch()
 
   const handleClick = () => {
