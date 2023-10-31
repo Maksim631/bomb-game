@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 
-export const Timer = (onTimerEnd) => {
-  const [seconds, setSeconds] = useState(60);
+import PropTypes from 'prop-types';
+
+export const Timer = ({ onTimerEnd }) => {
+  const [seconds, setSeconds] = useState(10);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -27,3 +29,6 @@ export const Timer = (onTimerEnd) => {
   );
 }
 
+Timer.propTypes = {
+  onTimerEnd: PropTypes.func.isRequired,
+}

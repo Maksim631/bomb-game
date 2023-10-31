@@ -3,6 +3,8 @@ import {
   RANDOM_WORDS_COUNT,
   DEFAULT_STATE,
 } from '../shared/constants.js';
+import { LinkedList } from './utils/LinkedList.js';
+import { ListNode } from './utils/ListNode.js';
 import { shuffle } from './utils/shuffle.js';
 
 export class GameState {
@@ -41,6 +43,7 @@ export class GameState {
 
   nextRound() {
     this.state.round++;
+    this.state.usersList.next();
     return this.state.round;
   }
 
@@ -63,7 +66,7 @@ export class GameState {
   }
 
   getCurrentUser() {
-    // TODO: implement
+    return this.state.usersList ? this.state.usersList.getCurrent() : '';
   }
 
   getTeamOneScore() {
@@ -85,6 +88,11 @@ export class GameState {
     this.state.playersAmount++;
     if (team) {
       this.state[team].users.push(name);
+      const listNode = new ListNode(name);
+      if (!this.state.usersList) {
+        this.state.usersList = new LinkedList();
+      }
+      this.state.usersList.insert(listNode);
     } else {
       this.state.noTeamUsers.push(name);
     }
@@ -124,6 +132,18 @@ export class GameState {
     return {
       teamOne: this.state.teamOne.users,
       teamTwo: this.state.teamTwo.users,
+      noTeamUsers: this.state.noTeamUsers,
+    };
+  }
+
+  getPublicState() {
+    return {
+      gameWords: this.state.gameWords,
+      currentWords: this.state.currentWords,
+      currentTeam: this.state.currentTeam,
+      currentUser: this.getCurrentUser(),
+      teamOne: this.state.teamOne,
+      teamTwo: this.state.teamTwo,
       noTeamUsers: this.state.noTeamUsers,
     };
   }

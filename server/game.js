@@ -7,7 +7,7 @@ const gameState = new GameState();
 const updateGameState = () => {
   gameClients.sendToAll({
     type: TYPES.GAME_STATE,
-    data: gameState.state,
+    data: gameState.getPublicState(),
   });
 };
 

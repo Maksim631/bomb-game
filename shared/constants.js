@@ -41,6 +41,8 @@ export const DEFAULT_STATE = {
     score: 0,
   },
   noTeamUsers: [],
+  currentUser: '',
+  usersList: null,
 };
 export const ROOM_ID = 'room';
 
