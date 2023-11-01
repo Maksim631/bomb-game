@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { DEFAULT_STATE } from "../../shared/constants";
 import { useGetGameStateQuery, useTurnEndMutation, useWordCorrectMutation, useWordIncorrectMutation } from "../store/api";
 import { Timer } from "./Timer";
@@ -10,31 +10,48 @@ export const Game = () => {
   const [ onWordIncorrect ] = useWordIncorrectMutation();
   const [ endTurn ] = useTurnEndMutation();
   const { name } = useGameSelector();
+
+  const [ timerVisible, setTimerVisible ] = useState(true);
   
   const lastWord = data.currentWords[data.currentWords.length - 1];
   const isYourTurn = name === data.currentUser;
 
   useEffect(() => {
-    if (data.currentWords.length === 0) {
+    if (isYourTurn && data.currentWords.length === 0) {
+      setTimerVisible(false)
       endTurn();
     }
-  }, [data.currentWords, endTurn])
+  }, [data.currentWords, endTurn, isYourTurn])
+
+  useEffect(() => {
+    if (isYourTurn) {
+      setTimerVisible(true)
+    }
+  }, [isYourTurn])
 
   return (
     <div>
       <h1>Game</h1>
-      <h2>Current team {data.currentTeam}</h2>
-      <h2>Current user {data.currentUser}</h2>
-      {isYourTurn && 
+      { data.isGameFinished ? 
         <>
-          <Timer onTimerEnd={endTurn} /> 
+        <h2>Game is Finished!</h2>
+        </> : 
+        <>
+        <h2>Round: {data.round}</h2>
+        <h2>Current team {data.currentTeam}</h2>
+        <h2>Current user {data.currentUser}</h2>
+        {isYourTurn && 
+          <>
+            { timerVisible && <Timer onTimerEnd={endTurn} /> }
 
-          <h3>Word</h3>
-          <p>{lastWord}</p>
+            <h3>Word</h3>
+            <p>{lastWord}</p>
 
-          <button onClick={onWordCorrect}>Correct Word</button>
-          <button onClick={onWordIncorrect}>Incorrect Word</button>
-        </>
+            <button onClick={onWordCorrect}>Correct Word</button>
+            <button onClick={onWordIncorrect}>Incorrect Word</button>
+          </>
+        }
+      </>
       }
     </div>
   )

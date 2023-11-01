@@ -28,7 +28,7 @@ export const words = [
 
 export const DEFAULT_STATE = {
   gameWords: [],
-  round: 0,
+  round: 1,
   currentWords: [],
   currentTeam: 'teamOne',
   playersAmount: 0,

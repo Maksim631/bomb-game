@@ -3,9 +3,7 @@ import {
   RANDOM_WORDS_COUNT,
   DEFAULT_STATE,
 } from '../shared/constants.js';
-import { LinkedList } from './utils/LinkedList.js';
-import { ListNode } from './utils/ListNode.js';
-import { shuffle } from './utils/shuffle.js';
+import { LinkedList, ListNode, shuffle, combine } from './utils/index.js';
 
 export class GameState {
   constructor() {
@@ -43,7 +41,6 @@ export class GameState {
 
   nextRound() {
     this.state.round++;
-    this.state.usersList.next();
     return this.state.round;
   }
 
@@ -59,6 +56,7 @@ export class GameState {
     if (this.state.currentTeam === 'teamOne')
       this.state.currentTeam = 'teamTwo';
     else this.state.currentTeam = 'teamOne';
+    this.nextUser();
   }
 
   getCurrentTeam() {
@@ -88,14 +86,21 @@ export class GameState {
     this.state.playersAmount++;
     if (team) {
       this.state[team].users.push(name);
-      const listNode = new ListNode(name);
-      if (!this.state.usersList) {
-        this.state.usersList = new LinkedList();
-      }
-      this.state.usersList.insert(listNode);
     } else {
       this.state.noTeamUsers.push(name);
     }
+  }
+
+  makeUsersQueueList() {
+    const teamOneUsers = this.state.teamOne.users;
+    const teamTwoUsers = this.state.teamTwo.users;
+    const combined = combine(teamOneUsers, teamTwoUsers);
+    this.state.usersList = new LinkedList();
+
+    combined.forEach((name) => {
+      const listNode = new ListNode(name);
+      this.state.usersList.insert(listNode);
+    });
   }
 
   isUserWithName(name) {
@@ -109,6 +114,10 @@ export class GameState {
       (userName) => userName === name
     );
     return isNoTeamUser || isTeamOneUser || isTeamTwoUser;
+  }
+
+  nextUser() {
+    this.state.usersList.next();
   }
 
   removeExistingPlayer(name) {
@@ -145,6 +154,7 @@ export class GameState {
       teamOne: this.state.teamOne,
       teamTwo: this.state.teamTwo,
       noTeamUsers: this.state.noTeamUsers,
+      round: this.state.round,
     };
   }
 }

@@ -76,6 +76,13 @@ export const api = createApi({
                 }));
                 break;
               }
+              case TYPES.END_GAME: {
+                updateCachedData((cachedData) => ({
+                  ...cachedData,
+                  isGameFinished: true,
+                }));
+                break;
+              }
               case TYPES.GAME_CAN_BE_STARTED: {
                 updateCachedData((cachedData) => ({
                   ...cachedData,

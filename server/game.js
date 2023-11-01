@@ -38,6 +38,7 @@ export const processMessage = (connection, message) => {
     }
     case TYPES.START_NEW_GAME: {
       const exceptions = [];
+      gameState.makeUsersQueueList();
       gameClients.forEachClient((client) => {
         const words = gameState.getRandomWords(exceptions);
         exceptions.push(...words);
@@ -74,7 +75,6 @@ export const processMessage = (connection, message) => {
     case TYPES.WORD_SUCCESS: {
       gameState.updateScore(1);
       gameState.nextWord();
-      console.log(gameState.getCurrentWords());
       gameClients.sendToAll({ type: TYPES.WORD_SUCCESS });
       updateGameState();
       break;
@@ -87,32 +87,17 @@ export const processMessage = (connection, message) => {
     }
     case TYPES.END_ROUND: {
       const isWordsRemain = gameState.getCurrentWords().length > 0;
+      console.log(isWordsRemain);
       gameState.changeTeam();
       if (isWordsRemain) {
-        gameClients.sendToAll({
-          type: TYPES.SCORE_UPDATE,
-          data: {
-            currentTeam: gameState.state.currentTeam,
-            teamOneScore: gameState.getTeamOneScore(),
-            teamTwoScore: gameState.getTeamTwoScore(),
-          },
-        });
+        updateGameState();
       } else {
         const round = gameState.nextRound();
-        gameState.shuffleWords();
+        gameState.resetCurrentWords();
         if (round > ROUNDS_AMOUNT) {
-          gameClients.sendToAll({
-            type: TYPES.END_GAME,
-            data: gameState.state,
-          });
-        } else {
-          gameClients.sendToAll({
-            type: TYPES.NEW_ROUND,
-            data: {
-              words: gameState.getGameWords(),
-            },
-          });
+          gameClients.sendToAll({ type: TYPES.END_GAME });
         }
+        updateGameState();
       }
       break;
     }
