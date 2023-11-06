@@ -102,6 +102,7 @@ export const processMessage = (connection, message) => {
       break;
     }
     case TYPES.LEAVE_ROOM: {
+      gameState.removeExistingPlayer(data.name);
       gameClients.removeClient(data.name);
       break;
     }

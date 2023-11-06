@@ -49,6 +49,13 @@ export const api = createApi({
         ws.send(JSON.stringify({ type: TYPES.CHOOSE_WORDS, data: { words } }));
       },
     }),
+    leaveRoom: builder.mutation({
+      queryFn: async ({ name }) => {
+        const ws = await getSocket();
+        console.warn(name);
+        ws.send(JSON.stringify({ type: TYPES.LEAVE_ROOM, data: { name } }));
+      },
+    }),
     getGameState: builder.query({
       queryFn: () => ({ data: DEFAULT_STATE }),
       async onCacheEntryAdded(
@@ -60,7 +67,6 @@ export const api = createApi({
           await cacheDataLoaded;
           const listener = (event) => {
             const { data, type } = JSON.parse(event.data);
-            console.log(data, type);
             switch (type) {
               case TYPES.GAME_STATE: {
                 updateCachedData((cachedData) => ({
@@ -114,4 +120,5 @@ export const {
   useWordCorrectMutation,
   useWordIncorrectMutation,
   useTurnEndMutation,
+  useLeaveRoomMutation,
 } = api;
