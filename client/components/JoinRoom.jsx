@@ -10,7 +10,7 @@ export const JoinRoom = memo(function JoinRoom(){
 
   const handleClick = () => {
     dispatch({ type: 'CHOOSE_NAME', payload: name })
-    joinRoom(name);
+    joinRoom({ name });
   }
 
   return (

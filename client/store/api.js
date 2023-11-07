@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
 import { getSocket } from './socket';
 import { DEFAULT_STATE, TYPES } from '../../shared/constants';
 
@@ -6,7 +6,7 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
   endpoints: (builder) => ({
     joinRoom: builder.mutation({
-      queryFn: async (name) => {
+      queryFn: async ({ name }) => {
         const ws = await getSocket();
         ws.send(JSON.stringify({ type: TYPES.JOIN_ROOM, data: { name } }));
       },
