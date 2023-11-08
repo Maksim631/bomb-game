@@ -1,6 +1,9 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
+import * as rtkQuery from '@reduxjs/toolkit/dist/query/react/index.js';
+
 import { getSocket } from './socket';
 import { DEFAULT_STATE, TYPES } from '../../shared/constants';
+
+const { createApi, fetchBaseQuery } = rtkQuery.default ?? rtkQuery;
 
 export const api = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
